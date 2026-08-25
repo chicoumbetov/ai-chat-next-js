@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Message } from '../domain/chat.entity';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+
 export function useChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -17,7 +19,7 @@ export function useChat() {
     setMessages((prev) => [...prev, userMessage]);
     setIsLoading(true);
 
-    const response = await fetch('http://127.0.0.1:8000/api/v1/chat', {
+    const response = await fetch(`${API_URL}/api/v1/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: content }),
