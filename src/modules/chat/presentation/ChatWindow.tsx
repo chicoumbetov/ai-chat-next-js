@@ -1,15 +1,26 @@
 'use client';
 import { ThemeToggle } from '@/modules/core/components/ThemeToggle';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { useChat } from '../usecase/useChat';
 import { ChatSkeleton } from './ChatSkeleton';
 
 export function ChatWindow() {
   const { messages, isLoading, sendMessage } = useChat();
   const [input, setInput] = useState('');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, isLoading]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!input.trim() || isLoading) return;
     sendMessage(input);
     setInput('');
   };
@@ -47,21 +58,28 @@ export function ChatWindow() {
               className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-md p-3 rounded-lg text-sm ${
+                className={`max-w-md p-3 rounded-lg text-sm overflow-hidden ${
                   msg.sender === 'user'
                     ? 'bg-blue-600 text-white'
                     : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100'
                 }`}
               >
-                <p>{msg.content}</p>
+                {msg.sender === 'user' ? (
+                  <p className="whitespace-pre-wrap">{msg.content}</p>
+                ) : (
+                  <div className="prose dark:prose-invert max-w-none text-sm [&>pre]:bg-gray-900 [&>pre]:text-gray-100 [&>pre]:p-2 [&>pre]:rounded">
+                    <ReactMarkdown>{msg.content}</ReactMarkdown>
+                  </div>
+                )}
                 <span className="block text-[10px] opacity-70 mt-1">
-                  {msg.createdAt.toLocaleTimeString()}
+                  {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
               </div>
             </div>
           ))
         )}
         {isLoading && <ChatSkeleton />}
+        <div ref={messagesEndRef} />
       </div>
 
       <form onSubmit={handleSubmit} className="flex gap-2 pt-4 border-t border-gray-200 dark:border-gray-800">
@@ -70,13 +88,22 @@ export function ChatWindow() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Type a message..."
-          className="flex-1 px-4 py-2 border rounded-lg dark:bg-gray-800 dark:border-gray-700 focus:outline-none"
+          disabled={isLoading}
+          className="flex-1 px-4 py-2 border rounded-lg dark:bg-gray-800 dark:border-gray-700 focus:outline-none disabled:opacity-50"
         />
         <button
           type="submit"
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          disabled={isLoading}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center min-w-[70px]"
         >
-          Send
+          {isLoading ? (
+            <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          ) : (
+            'Send'
+          )}
         </button>
       </form>
     </div>

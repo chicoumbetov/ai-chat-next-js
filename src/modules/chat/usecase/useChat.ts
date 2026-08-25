@@ -1,11 +1,34 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Message } from '../domain/chat.entity';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+const API_URL = 'http://127.0.0.1:8000'; // process.env.NEXT_PUBLIC_API_URL || 
 
 export function useChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  // Load history of chat on chat open
+  useEffect(() => {
+    async function fetchHistory() {
+      try {
+        const res = await fetch(`${API_URL}/api/v1/chat`);
+        if (res.ok) {
+          const data = await res.json();
+          // Map data for Message instance
+          const loadedMessages: Message[] = data.map((item: any) => ({
+            id: item.id.toString(),
+            content: item.content,
+            sender: item.role, // 'user' or 'assistant'
+            createdAt: new Date(item.created_at),
+          }));
+          setMessages(loadedMessages);
+        }
+      } catch (e) {
+        console.error('Failed to load history', e);
+      }
+    }
+    fetchHistory();
+  }, []);
 
   const sendMessage = async (content: string) => {
     if (!content.trim()) return;
