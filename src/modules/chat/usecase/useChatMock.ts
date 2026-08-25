@@ -17,32 +17,16 @@ export function useChat() {
     setMessages((prev) => [...prev, userMessage]);
     setIsLoading(true);
 
-    const response = await fetch('http://127.0.0.1:8000/api/v1/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: content }),
-    }).catch(() => null);
-
-    if (response && response.ok) {
-      const data = await response.json();
+    setTimeout(() => {
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: data.reply,
+        content: 'Answer of AI model.',
         sender: 'assistant',
         createdAt: new Date(),
       };
       setMessages((prev) => [...prev, assistantMessage]);
-    } else {
-      const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        content: 'Connection error with the backend.',
-        sender: 'assistant',
-        createdAt: new Date(),
-      };
-      setMessages((prev) => [...prev, errorMessage]);
-    }
-
-    setIsLoading(false);
+      setIsLoading(false);
+    }, 1000);
   };
 
   return { messages, isLoading, sendMessage };

@@ -22,25 +22,45 @@ export function ChatWindow() {
       </header>
 
       <div className="flex-1 overflow-y-auto py-4 space-y-4">
-        {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-          >
-            <div
-              className={`max-w-md p-3 rounded-lg text-sm ${
-                msg.sender === 'user'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100'
-              }`}
-            >
-              <p>{msg.content}</p>
-              <span className="block text-[10px] opacity-70 mt-1">
-                {msg.createdAt.toLocaleTimeString()}
-              </span>
+        {messages.length === 0 && !isLoading ? (
+          <div className="flex flex-col items-center justify-center h-full text-center text-gray-400 space-y-3">
+            <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded-full">
+              💬
+            </div>
+            <p className="text-sm font-medium">Начните диалог с искусственным интеллектом</p>
+            <div className="flex flex-wrap justify-center gap-2 mt-2">
+              {['Расскажи шутку', 'Помоги написать код', 'Что такое Clean Architecture?'].map((suggestion) => (
+                <button
+                  key={suggestion}
+                  onClick={() => sendMessage(suggestion)}
+                  className="text-xs px-3 py-1.5 border rounded-full border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+                >
+                  {suggestion}
+                </button>
+              ))}
             </div>
           </div>
-        ))}
+        ) : (
+          messages.map((msg) => (
+            <div
+              key={msg.id}
+              className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
+              <div
+                className={`max-w-md p-3 rounded-lg text-sm ${
+                  msg.sender === 'user'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100'
+                }`}
+              >
+                <p>{msg.content}</p>
+                <span className="block text-[10px] opacity-70 mt-1">
+                  {msg.createdAt.toLocaleTimeString()}
+                </span>
+              </div>
+            </div>
+          ))
+        )}
         {isLoading && <ChatSkeleton />}
       </div>
 
