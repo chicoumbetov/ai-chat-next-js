@@ -27,9 +27,9 @@ export function ChatWindow() {
             <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded-full">
               💬
             </div>
-            <p className="text-sm font-medium">Начните диалог с искусственным интеллектом</p>
+            <p className="text-sm font-medium">Start a conversation with artificial intelligence</p>
             <div className="flex flex-wrap justify-center gap-2 mt-2">
-              {['Расскажи шутку', 'Помоги написать код', 'Что такое Clean Architecture?'].map((suggestion) => (
+              {['Tell me a joke', 'Help me write code', 'What is Clean Architecture?'].map((suggestion) => (
                 <button
                   key={suggestion}
                   onClick={() => sendMessage(suggestion)}
@@ -69,7 +69,7 @@ export function ChatWindow() {
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Введите сообщение..."
+          placeholder="Type a message..."
           className="flex-1 px-4 py-2 border rounded-lg dark:bg-gray-800 dark:border-gray-700 focus:outline-none"
         />
         <button
